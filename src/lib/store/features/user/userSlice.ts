@@ -5,6 +5,7 @@ export interface UserState {
     id: string;
     name: string;
     email: string;
+    userType: "worker" | "contractor" | "";
   };
   loading: boolean;
 }
@@ -14,6 +15,7 @@ const initialState: UserState = {
     id: "",
     name: "",
     email: "",
+    userType: "",
   },
   loading: false,
 };
@@ -37,6 +39,7 @@ export const userSlice = createSlice({
         id: "",
         name: "",
         email: "",
+        userType: "",
       };
     },
   },

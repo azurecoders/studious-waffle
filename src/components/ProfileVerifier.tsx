@@ -4,6 +4,7 @@ import { logOut } from "@/lib/store/features/user/userSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import Link from "next/link";
 import { Button } from "./ui/button";
+import { Plus } from "lucide-react";
 
 const ProfileVerifier = ({ device }: { device: string }) => {
   const user = useAppSelector((state) => state.user);
@@ -32,6 +33,20 @@ const ProfileVerifier = ({ device }: { device: string }) => {
             </>
           ) : (
             <>
+              {user.userType === "worker" ? (
+                <Link href="/find-work">
+                  <button className="bg-gradient-to-r from-orange-600 to-orange-500 text-white hover:opacity-90 shadow-lg shadow-orange-500/20 py-2 px-4 rounded-md">
+                    Find Work
+                  </button>
+                </Link>
+              ) : (
+                <Link href="/post-work">
+                  <button className="bg-gradient-to-r from-orange-600 to-orange-500 text-white hover:opacity-90 shadow-lg shadow-orange-500/20 py-2 px-4 rounded-md flex items-center gap-2">
+                    <Plus size={20} />
+                    Post Work
+                  </button>
+                </Link>
+              )}
               <Link href="/profile">
                 <img
                   src={
@@ -43,12 +58,12 @@ const ProfileVerifier = ({ device }: { device: string }) => {
                   className="rounded-full"
                 />
               </Link>
-              <Button
-                className="bg-gradient-to-r from-orange-600 to-orange-500 text-white hover:opacity-90 shadow-lg shadow-orange-500/20"
+              <button
+                className="bg-gradient-to-r from-orange-600 to-orange-500 text-white hover:opacity-90 shadow-lg shadow-orange-500/20 py-2 px-4 rounded-md"
                 onClick={handleLogout}
               >
                 Logout
-              </Button>
+              </button>
             </>
           )}
         </>
@@ -62,19 +77,19 @@ const ProfileVerifier = ({ device }: { device: string }) => {
                 </Button>
               </Link>
               <Link href="/register">
-                <Button className="w-full bg-gradient-to-r from-orange-600 to-orange-500 mb-3">
+                <button className="w-full bg-gradient-to-r from-orange-600 to-orange-500 mb-3 text-white hover:opacity-90 shadow-lg shadow-orange-500/20 py-2 px-4">
                   Get Started
-                </Button>
+                </button>
               </Link>
             </>
           ) : (
             <>
-              <Button
-                className="bg-gradient-to-r from-orange-600 to-orange-500 text-white hover:opacity-90 shadow-lg shadow-orange-500/20"
+              <button
+                className="bg-gradient-to-r from-orange-600 to-orange-500 text-white hover:opacity-90 shadow-lg shadow-orange-500/20 py-2 px-4 rounded-md"
                 onClick={handleLogout}
               >
                 Logout
-              </Button>
+              </button>
             </>
           )}
         </>

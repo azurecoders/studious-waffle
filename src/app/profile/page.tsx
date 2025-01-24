@@ -24,6 +24,8 @@ import { motion } from "framer-motion";
 import { useAppSelector } from "@/lib/store/hooks";
 import { FetchUserDataAction, UpdateUserAction } from "@/actions";
 import { Toaster, toast } from "react-hot-toast";
+import { AlertTriangle, Shield, ShieldCheck } from "lucide-react";
+import Link from "next/link";
 
 const ProfilePage = () => {
   const user = useAppSelector((state) => state.user);
@@ -43,6 +45,7 @@ const ProfilePage = () => {
       rateType: "Hourly",
       rate: 0,
     },
+    isVerified: false,
   });
   const [isOpen, setIsOpen] = useState<string | null>(null);
   const [editedUser, setEditedUser] = useState<User>({
@@ -61,6 +64,7 @@ const ProfilePage = () => {
       rateType: "Hourly",
       rate: 0,
     },
+    isVerified: false,
   });
 
   useEffect(() => {
@@ -103,6 +107,34 @@ const ProfilePage = () => {
     }
   };
 
+  const VerificationAlert = () => (
+    <motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="mb-6 w-full"
+    >
+      <div className="bg-orange-500/10 border-l-4 border-orange-500 rounded-r-lg p-4 flex items-center space-x-3">
+        <AlertTriangle className="h-6 w-6 text-orange-500 flex-shrink-0" />
+        <div className="flex-1">
+          <h3 className="text-orange-400 font-medium">Account Not Verified</h3>
+          <p className="text-gray-300 text-sm mt-1">
+            {formData?.userType === "worker"
+              ? "Your account needs verification to bid for work. Complete verification to unlock all features."
+              : "Your account needs verification to post work. Complete verification to unlock all features."}
+          </p>
+        </div>
+
+        <Link
+          href="/verify"
+          type="button"
+          className="bg-orange-500/10 border border-orange-500 rounded-lg text-sm font-medium hover:bg-orange-500/20 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 border-orange-500/30 text-orange-400 whitespace-nowrap py-2 px-4"
+        >
+          Verify Now
+        </Link>
+      </div>
+    </motion.div>
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-black to-zinc-900 py-12 px-4 sm:px-6 lg:px-8">
       <Toaster />
@@ -112,12 +144,32 @@ const ProfilePage = () => {
         transition={{ duration: 0.5 }}
         className="max-w-4xl mx-auto"
       >
+        {/* Show verification alert if user is not verified */}
+        {!formData?.isVerified && <VerificationAlert />}
+
         <Card className="w-full shadow-2xl border-2 border-orange-500/20 rounded-2xl overflow-hidden bg-zinc-900">
           <CardHeader className="bg-gradient-to-r from-black to-zinc-900 text-white border-b-2 border-orange-500/30">
             <div className="flex justify-between items-center flex-wrap space-y-2">
-              <CardTitle className="text-2xl font-bold text-orange-400">
-                Professional Profile
-              </CardTitle>
+              <div className="flex items-center space-x-3">
+                <CardTitle className="text-2xl font-bold text-orange-400">
+                  Professional Profile
+                </CardTitle>
+                {formData?.isVerified ? (
+                  <div className="flex items-center space-x-1 bg-green-500/10 px-2 py-1 rounded-full">
+                    <ShieldCheck className="w-4 h-4 text-green-500" />
+                    <span className="text-green-500 text-sm font-medium">
+                      Verified
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-1 bg-orange-500/10 px-2 py-1 rounded-full">
+                    <Shield className="w-4 h-4 text-orange-500" />
+                    <span className="text-orange-500 text-sm font-medium">
+                      Unverified
+                    </span>
+                  </div>
+                )}
+              </div>
               <Button
                 variant="outline"
                 className="bg-transparent text-orange-400 hover:bg-orange-500/10 border-orange-500/30"

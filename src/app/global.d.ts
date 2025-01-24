@@ -14,4 +14,5 @@ interface User {
   area: string;
   profilePicture: string;
   phoneNumber: string;
+  isVerified: boolean;
 }

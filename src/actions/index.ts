@@ -1,6 +1,7 @@
 "use server";
 
 import User from "@/models/user.model";
+import Verification from "@/models/verification.model";
 import connectToDb from "@/utils/db";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -160,6 +161,7 @@ export const FetchUserDataAction = async (userId: string) => {
         profilePicture: user.profilePicture || "",
         phoneNumber: user.phoneNumber || "",
         userType: user.userType,
+        isVerified: user.isVerified,
       },
     };
   } catch (error) {
@@ -227,12 +229,86 @@ export const UpdateUserAction = async (formData: User) => {
         profilePicture: userExists.profilePicture || "",
         phoneNumber: userExists.phoneNumber || "",
         userType: userExists.userType,
+        isVerified: userExists.isVerified,
       },
     };
   } catch (error) {
     return {
       success: false,
       message: "An error occurred",
+    };
+  }
+};
+
+export const SubmitVerificationAction = async (formData: {
+  userId: string;
+  name: string;
+  frontUrl: string;
+  backUrl: string;
+}) => {
+  await connectToDb();
+  try {
+    const { userId, name, frontUrl, backUrl } = formData;
+
+    // Check if the user exists
+    const userExists = await User.findById(userId);
+    if (!userExists) {
+      return {
+        success: false,
+        message: "User not found",
+      };
+    }
+
+    if (userExists.isVerified) {
+      return {
+        success: false,
+        message: "User is already verified",
+      };
+    }
+
+    // Check if a verification already exists for the user
+    const existingVerification = await Verification.findOne({ userId });
+
+    if (existingVerification) {
+      if (existingVerification.status.toLowerCase() === "pending") {
+        return {
+          success: false,
+          message:
+            "A verification request is already pending. Please wait for approval.",
+        };
+      } else if (existingVerification.status.toLowerCase() === "approved") {
+        return {
+          success: false,
+          message: "Your verification request has already been approved.",
+        };
+      } else if (existingVerification.status.toLowerCase() === "rejected") {
+        return {
+          success: false,
+          message:
+            "Your previous verification request was rejected. Please contact support.",
+        };
+      }
+    }
+
+    // Create a new verification request
+    const newVerification = new Verification({
+      userId,
+      name,
+      frontUrl,
+      backUrl,
+      status: "pending",
+    });
+    await newVerification.save();
+
+    return {
+      success: true,
+      message:
+        "Verification submitted successfully! Your account will be verified within 24 hours.",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: "An error occurred while submitting the verification request.",
     };
   }
 };
