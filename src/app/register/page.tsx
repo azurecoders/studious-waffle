@@ -18,7 +18,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { authStart, authSuccess } from "@/lib/store/features/user/userSlice";
+import {
+  authStart,
+  authSuccess,
+  authFailure,
+} from "@/lib/store/features/user/userSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -26,7 +30,8 @@ import { ChangeEvent, useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 
 const RegistrationPage = () => {
-  const state = useAppSelector((state) => state);
+  const loading = useAppSelector((state) => state.loading);
+  const user = useAppSelector((state) => state.user);
   const [userType, setUserType] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -38,10 +43,10 @@ const RegistrationPage = () => {
   const router = useRouter();
 
   useEffect(() => {
-    if (state.user.id !== "") {
+    if (user.id !== "") {
       router.push("/");
     }
-  }, [state.user.id, router]);
+  }, [user.id, router]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -68,55 +73,74 @@ const RegistrationPage = () => {
           password: "",
         });
       } else {
+        dispatch(authFailure());
         toast.error(response.message);
       }
     } catch (error) {
-      toast.error("An error occured");
+      dispatch(authFailure());
+      toast.error("An error occurred");
     }
   };
 
   return (
     <>
       <Toaster />
-      <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white py-16 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gradient-to-b from-[#1E1E1E] to-[#121212] py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-orange-500 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-500 to-orange-300 bg-clip-text text-transparent">
               Join Mazdory
             </h1>
-            <p className="mt-2 text-gray-600">
+            <p className="mt-2 text-gray-400">
               Connect with opportunities worldwide
             </p>
           </div>
 
-          <Card className="shadow-xl">
+          <Card className="shadow-xl bg-[#2C2C2C] border-gray-800">
             <CardHeader>
-              <CardTitle>Create your account</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-white">Create your account</CardTitle>
+              <CardDescription className="text-gray-400">
                 Start your journey with Mazdory today
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form action={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="userType">I want to</Label>
+                  <Label htmlFor="userType" className="text-gray-300">
+                    I want to
+                  </Label>
                   <Select value={userType} onValueChange={setUserType}>
-                    <SelectTrigger id="userType" className="w-full">
+                    <SelectTrigger
+                      id="userType"
+                      className="w-full bg-[#1E1E1E] border-gray-700 text-gray-100"
+                    >
                       <SelectValue placeholder="Select account type" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="worker">Find Work</SelectItem>
-                      <SelectItem value="contractor">Hire Talent</SelectItem>
+                    <SelectContent className="bg-[#2C2C2C] border-gray-800">
+                      <SelectItem
+                        value="worker"
+                        className="text-gray-300 hover:bg-[#1E1E1E]"
+                      >
+                        Find Work
+                      </SelectItem>
+                      <SelectItem
+                        value="contractor"
+                        className="text-gray-300 hover:bg-[#1E1E1E]"
+                      >
+                        Hire Talent
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
+                  <Label htmlFor="name" className="text-gray-300">
+                    Full Name
+                  </Label>
                   <Input
                     id="name"
                     placeholder="John Doe"
-                    className="w-full"
+                    className="w-full bg-[#1E1E1E] border-gray-700 text-gray-100 focus:border-orange-500"
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
@@ -125,12 +149,14 @@ const RegistrationPage = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email" className="text-gray-300">
+                    Email
+                  </Label>
                   <Input
                     id="email"
                     type="email"
                     placeholder="you@example.com"
-                    className="w-full"
+                    className="w-full bg-[#1E1E1E] border-gray-700 text-gray-100 focus:border-orange-500"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
@@ -139,13 +165,15 @@ const RegistrationPage = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password" className="text-gray-300">
+                    Password
+                  </Label>
                   <div className="relative">
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
-                      className="w-full pr-10"
+                      className="w-full pr-10 bg-[#1E1E1E] border-gray-700 text-gray-100 focus:border-orange-500"
                       name="password"
                       value={formData.password}
                       onChange={handleChange}
@@ -154,7 +182,7 @@ const RegistrationPage = () => {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
                     >
                       {showPassword ? (
                         <EyeOff className="w-5 h-5" />
@@ -169,7 +197,7 @@ const RegistrationPage = () => {
                   type="submit"
                   className="w-full bg-gradient-to-r from-orange-600 to-orange-500 text-white hover:opacity-90 shadow-lg shadow-orange-500/20 group"
                 >
-                  {state.loading ? (
+                  {loading ? (
                     <svg
                       className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
                       xmlns="http://www.w3.org/2000/svg"
@@ -198,11 +226,11 @@ const RegistrationPage = () => {
                   )}
                 </Button>
 
-                <p className="text-center text-sm text-gray-600">
+                <p className="text-center text-sm text-gray-400">
                   Already have an account?{" "}
                   <a
                     href="/login"
-                    className="text-orange-600 hover:text-orange-700 font-medium"
+                    className="text-orange-400 hover:text-orange-500 font-medium"
                   >
                     Log in
                   </a>

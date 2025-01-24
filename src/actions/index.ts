@@ -4,14 +4,16 @@ import User from "@/models/user.model";
 import connectToDb from "@/utils/db";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
 export const CreateUserAction = async (formData: {
   name: string;
   email: string;
   password: string;
+  userType: string;
 }) => {
-  const { name, email, password } = formData;
+  const { name, email, password, userType } = formData;
   await connectToDb();
   try {
     const userExists = await User.findOne({ email });
@@ -28,6 +30,7 @@ export const CreateUserAction = async (formData: {
       name,
       email,
       password: hashedPassword,
+      userType,
     });
 
     await user.save();
@@ -58,6 +61,7 @@ export const CreateUserAction = async (formData: {
           id: user._id,
           name: user.name,
           email: user.email,
+          userType: user.userType,
         })
       ),
     };
@@ -114,8 +118,116 @@ export const LoginUserAction = async (formData: {
           id: userExists._id,
           name: userExists.name,
           email: userExists.email,
+          userType: userExists.userType,
         })
       ),
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: "An error occurred",
+    };
+  }
+};
+
+export const FetchUserDataAction = async (userId: string) => {
+  await connectToDb();
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return {
+        success: false,
+        message: "User not found",
+      };
+    }
+    // Return only needed data to avoid cycles
+    return {
+      success: true,
+      message: "Fetching user details...",
+      userData: {
+        id: user._id.toString(),
+        name: user.name,
+        email: user.email,
+        bio: user.bio || "",
+        skills: user.skills || [],
+        rate: {
+          rateType: user.rate?.rateType || "Hourly",
+          rate: user.rate?.rate || 0,
+        },
+        country: user.country || "Pakistan",
+        province: user.province || "",
+        area: user.area || "",
+        profilePicture: user.profilePicture || "",
+        phoneNumber: user.phoneNumber || "",
+        userType: user.userType,
+      },
+    };
+  } catch (error) {
+    console.error("FetchUserDataAction error:", error);
+    return {
+      success: false,
+      message: "An error occurred",
+    };
+  }
+};
+
+export const UpdateUserAction = async (formData: User) => {
+  await connectToDb();
+  try {
+    const {
+      id,
+      name,
+      bio,
+      email,
+      rate,
+      skills,
+      country,
+      province,
+      area,
+      profilePicture,
+      phoneNumber,
+    } = formData;
+    const userExists = await User.findById(id);
+    if (!userExists) {
+      return {
+        success: false,
+        message: "User not found",
+      };
+    }
+
+    userExists.name = name;
+    userExists.bio = bio;
+    userExists.email = email;
+    userExists.rate = rate;
+    userExists.skills = skills;
+    userExists.country = country;
+    userExists.province = province;
+    userExists.area = area;
+    userExists.profilePicture = profilePicture;
+    userExists.phoneNumber = phoneNumber;
+
+    await userExists.save();
+
+    return {
+      success: true,
+      message: "User updated successfully",
+      userData: {
+        id: userExists._id.toString(),
+        name: userExists.name,
+        email: userExists.email,
+        bio: userExists.bio || "",
+        skills: userExists.skills || [],
+        rate: {
+          rateType: userExists.rate?.rateType || "Hourly",
+          rate: userExists.rate?.rate || 0,
+        },
+        country: userExists.country || "Pakistan",
+        province: userExists.province || "",
+        area: userExists.area || "",
+        profilePicture: userExists.profilePicture || "",
+        phoneNumber: userExists.phoneNumber || "",
+        userType: userExists.userType,
+      },
     };
   } catch (error) {
     return {

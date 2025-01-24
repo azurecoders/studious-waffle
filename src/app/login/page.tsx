@@ -11,7 +11,11 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { authStart, authSuccess } from "@/lib/store/features/user/userSlice";
+import {
+  authStart,
+  authSuccess,
+  authFailure,
+} from "@/lib/store/features/user/userSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -57,11 +61,13 @@ const LoginPage = () => {
           email: "",
           password: "",
         });
-        router.push("/"); // Redirect after successful login
+        router.push("/");
       } else {
         toast.error(response.message);
+        dispatch(authFailure());
       }
     } catch (error) {
+      dispatch(authFailure());
       toast.error("An error occurred");
     }
   };
@@ -69,21 +75,21 @@ const LoginPage = () => {
   return (
     <>
       <Toaster />
-      <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white py-16 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-[#1E1E1E] to-[#121212] py-16 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-orange-500 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-500 to-orange-300 bg-clip-text text-transparent">
               Welcome Back
             </h1>
-            <p className="mt-2 text-gray-600">
+            <p className="mt-2 text-gray-400">
               Log in to continue your journey
             </p>
           </div>
 
-          <Card className="shadow-xl">
+          <Card className="shadow-xl bg-[#2C2C2C] border-gray-800">
             <CardHeader>
-              <CardTitle>Login to Mazdory</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-white">Login to Mazdory</CardTitle>
+              <CardDescription className="text-gray-400">
                 Enter your credentials to access your account
               </CardDescription>
             </CardHeader>
@@ -96,12 +102,14 @@ const LoginPage = () => {
                 }}
               >
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email" className="text-gray-300">
+                    Email
+                  </Label>
                   <Input
                     id="email"
                     type="email"
                     placeholder="you@example.com"
-                    className="w-full"
+                    className="w-full bg-[#1E1E1E] border-gray-700 text-gray-100 focus:border-orange-500"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
@@ -111,10 +119,12 @@ const LoginPage = () => {
 
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password" className="text-gray-300">
+                      Password
+                    </Label>
                     <a
                       href="/forgot-password"
-                      className="text-sm text-orange-600 hover:text-orange-700"
+                      className="text-sm text-orange-400 hover:text-orange-500"
                     >
                       Forgot password?
                     </a>
@@ -124,7 +134,7 @@ const LoginPage = () => {
                       id="password"
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
-                      className="w-full pr-10"
+                      className="w-full pr-10 bg-[#1E1E1E] border-gray-700 text-gray-100 focus:border-orange-500"
                       name="password"
                       value={formData.password}
                       onChange={handleChange}
@@ -133,7 +143,7 @@ const LoginPage = () => {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
                     >
                       {showPassword ? (
                         <EyeOff className="w-5 h-5" />
@@ -179,18 +189,18 @@ const LoginPage = () => {
 
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-gray-200" />
+                    <span className="w-full border-t border-gray-700" />
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-gray-500">or</span>
+                    <span className="px-2 bg-[#2C2C2C] text-gray-400">or</span>
                   </div>
                 </div>
 
-                <p className="text-center text-sm text-gray-600">
+                <p className="text-center text-sm text-gray-400">
                   Don't have an account?{" "}
                   <a
                     href="/register"
-                    className="text-orange-600 hover:text-orange-700 font-medium"
+                    className="text-orange-400 hover:text-orange-500 font-medium"
                   >
                     Sign up
                   </a>

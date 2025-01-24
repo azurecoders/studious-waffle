@@ -29,6 +29,9 @@ export const userSlice = createSlice({
       state.loading = false;
       state.user = action.payload;
     },
+    authFailure: (state) => {
+      state.loading = false;
+    },
     logOut: (state) => {
       state.user = {
         id: "",
@@ -40,6 +43,7 @@ export const userSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const { authStart, authSuccess, logOut } = userSlice.actions;
+export const { authStart, authSuccess, authFailure, logOut } =
+  userSlice.actions;
 
 export default userSlice.reducer;

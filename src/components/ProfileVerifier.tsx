@@ -1,10 +1,9 @@
 "use client";
 
+import { logOut } from "@/lib/store/features/user/userSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import Link from "next/link";
-import React from "react";
 import { Button } from "./ui/button";
-import { logOut } from "@/lib/store/features/user/userSlice";
 
 const ProfileVerifier = ({ device }: { device: string }) => {
   const user = useAppSelector((state) => state.user);
@@ -22,12 +21,7 @@ const ProfileVerifier = ({ device }: { device: string }) => {
           {user.id === "" ? (
             <>
               <Link href="/login">
-                <Button
-                  variant="ghost"
-                  className="text-gray-700 hover:text-orange-600"
-                >
-                  Login
-                </Button>
+                <Button variant="outline">Login</Button>
               </Link>
 
               <Link href="/register">
@@ -38,6 +32,17 @@ const ProfileVerifier = ({ device }: { device: string }) => {
             </>
           ) : (
             <>
+              <Link href="/profile">
+                <img
+                  src={
+                    "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+                  }
+                  alt="Profile Picture"
+                  width={40}
+                  height={40}
+                  className="rounded-full"
+                />
+              </Link>
               <Button
                 className="bg-gradient-to-r from-orange-600 to-orange-500 text-white hover:opacity-90 shadow-lg shadow-orange-500/20"
                 onClick={handleLogout}
